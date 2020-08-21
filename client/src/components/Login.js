@@ -1,14 +1,57 @@
-import React from "react";
+import React, { useState } from 'react'
+import { useHistory } from 'react-router-dom'
+import { axiosWithAuth } from '../utils/axiosWithAuth'
 
-const Login = () => {
-  // make a post request to retrieve a token from the api
-  // when you have handled the token, navigate to the BubblePage route
-  return (
-    <>
-      <h1>Welcome to the Bubble App!</h1>
-      <p>Build a login page here</p>
-    </>
-  );
-};
+const Login = (props) => {
+    const history = useHistory()
+    const [application, setApplication] = useState([])
+    const [formState, setFormState] = useState ({
+        username: '',
+        password: '',
+    })
 
-export default Login;
+    const inputChange = e => {
+        e.persist()
+        setFormState({...formState, [e.target.name]: e.target.value})
+    }
+
+    const formSubmit = (e) => {
+        e.preventDefault()
+        console.log('formsubmitted')
+        axiosWithAuth()
+        .post('/login', formState)
+        .then(res => {
+            console.log(res.data)
+            window.localStorage.setItem('token', res.data.payload)
+            history.push('/protected')
+        })
+    }
+    return (
+        <div>
+            <form onSubmit={formSubmit}>
+                username:
+                <input
+                type="text"
+                name="username"
+                id="username"
+                placeholder="username"
+                value={formState.username}
+                onChange={inputChange}
+                />
+                password:
+                <input
+                type="text"
+                name="password"
+                id="password"
+                placeholder="password"
+                value={formState.password}
+                onChange={inputChange}
+                />
+                <button onClick={formSubmit}>submit</button>
+            </form>
+        </div>
+
+    )
+}
+
+export default Login
